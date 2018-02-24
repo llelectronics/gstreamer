@@ -109,9 +109,9 @@ enum
 #define QUEUE_MAX_BYTES(queue) MIN((queue)->max_level.bytes, (queue)->ring_buffer_max_size)
 
 /* default property values */
-#define DEFAULT_MAX_SIZE_BUFFERS   800  /* 100 buffers */
+#define DEFAULT_MAX_SIZE_BUFFERS   100  /* 100 buffers */
 #define DEFAULT_MAX_SIZE_BYTES     (64 * 1024 * 1024)    /* 64 MB */
-#define DEFAULT_MAX_SIZE_TIME      4 * GST_SECOND       /* 4 seconds */
+#define DEFAULT_MAX_SIZE_TIME      6 * GST_SECOND       /* 6 seconds */
 #define DEFAULT_USE_BUFFERING      FALSE
 #define DEFAULT_USE_TAGS_BITRATE   FALSE
 #define DEFAULT_USE_RATE_ESTIMATE  TRUE
