@@ -110,7 +110,7 @@ enum
 
 /* default property values */
 #define DEFAULT_MAX_SIZE_BUFFERS   100  /* 100 buffers */
-#define DEFAULT_MAX_SIZE_BYTES     (5 * 1024 * 1024)    /* 5 MB */
+#define DEFAULT_MAX_SIZE_BYTES     (256 * 1024 * 1024)    /* 256 MB */
 #define DEFAULT_MAX_SIZE_TIME      2 * GST_SECOND       /* 2 seconds */
 #define DEFAULT_USE_BUFFERING      FALSE
 #define DEFAULT_USE_TAGS_BITRATE   FALSE
