@@ -11,6 +11,7 @@ gst_sources = [
   'gstcapsfeatures.c',
   'gstchildproxy.c',
   'gstclock.c',
+  'gstclock-linreg.c',
   'gstcontext.c',
   'gstcontrolbinding.c',
   'gstcontrolsource.c',
@@ -19,7 +20,6 @@ gst_sources = [
   'gstdevice.c',
   'gstdeviceprovider.c',
   'gstdeviceproviderfactory.c',
-  'gstdynamictypefactory.c',
   'gstelement.c',
   'gstelementfactory.c',
   'gsterror.c',
@@ -97,7 +97,6 @@ gst_headers = [
   'gstdevice.h',
   'gstdeviceprovider.h',
   'gstdeviceproviderfactory.h',
-  'gstdynamictypefactory.h',
   'gstelementfactory.h',
   'gsterror.h',
   'gstevent.h',
@@ -163,16 +162,21 @@ configure_file(input : 'gstversion.h.in',
   install_dir : 'include/gstreamer-1.0/gst',
   configuration : cdata)
 
-gst_enums = gnome.mkenums('gstenumtypes',
-  sources : gst_headers,
-  h_template : 'gstenumtypes.h.template',
-  c_template : 'gstenumtypes.c.template',
-  install_header : true,
-  install_dir : join_paths(get_option('includedir'), 'gstreamer-1.0/gst'))
+mkenums = find_program('build_mkenum.py')
+glib_mkenums = find_program('glib-mkenums')
 
-gstenum_h = gst_enums[1]
-gstenum_c = gst_enums[0]
+gstenum_h = custom_target('gstenum_h',
+  output : 'gstenumtypes.h',
+  input : gst_headers,
+  install : true,
+  install_dir : 'include/gstreamer-1.0/gst',
+  command : [mkenums, glib_mkenums, '@OUTPUT@', '@INPUT@'])
 
+gstenum_c = custom_target('gstenum_c',
+  output : 'gstenumtypes.c',
+  input : gst_headers,
+  depends : [gstenum_h],
+  command : [mkenums, glib_mkenums, '@OUTPUT@', '@INPUT@'])
 
 subdir('parse')
 subdir('printf')
@@ -196,7 +200,7 @@ if libtype != 'shared'
       include_directories('parse')],
     install : true,
     link_with : printf_lib,
-    dependencies : [gobject_dep, gmodule_dep, glib_dep, mathlib, unwind_dep, dw_dep] + platform_deps,
+    dependencies : [gobject_dep, gmodule_dep, glib_dep, mathlib] + platform_deps,
   )
   libgst = libgst_static
 endif
@@ -215,8 +219,7 @@ if libtype != 'static'
       include_directories('parse')],
     link_with : printf_lib,
     install : true,
-    dependencies : [gobject_dep, gmodule_dep, glib_dep, mathlib, dl_dep,
-                    unwind_dep, dw_dep] + platform_deps,
+    dependencies : [gobject_dep, gmodule_dep, glib_dep, mathlib] + platform_deps,
     vs_module_defs: vs_module_defs_dir + 'libgstreamer.def',
   )
   libgst = libgst_shared

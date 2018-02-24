@@ -1047,10 +1047,7 @@ gst_queue_handle_sink_query (GstPad * pad, GstObject * parent, GstQuery * query)
         qitem.size = 0;
         gst_queue_array_push_tail_struct (queue->queue, &qitem);
         GST_QUEUE_SIGNAL_ADD (queue);
-        while (queue->srcresult == GST_FLOW_OK &&
-            queue->last_handled_query != query)
-          g_cond_wait (&queue->query_handled, &queue->qlock);
-        queue->last_handled_query = NULL;
+        g_cond_wait (&queue->query_handled, &queue->qlock);
         if (queue->srcresult != GST_FLOW_OK)
           goto out_flushing;
         res = queue->last_query;
@@ -1448,7 +1445,6 @@ next:
     ret = gst_pad_peer_query (queue->srcpad, query);
     GST_QUEUE_MUTEX_LOCK_CHECK (queue, out_flushing_query);
     queue->last_query = ret;
-    queue->last_handled_query = query;
     g_cond_signal (&queue->query_handled);
     GST_CAT_LOG_OBJECT (queue_dataflow, queue,
         "did query %p, return %d", query, queue->last_query);

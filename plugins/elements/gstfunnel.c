@@ -397,16 +397,10 @@ gst_funnel_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
     GST_OBJECT_LOCK (funnel);
     fpad->got_eos = FALSE;
     GST_OBJECT_UNLOCK (funnel);
-  }
-
-  if (forward && GST_EVENT_IS_SERIALIZED (event)) {
-    /* If no data is coming and we receive serialized event, need to forward all sticky events.
-     * Otherwise downstream has an inconsistent set of sticky events when
-     * handling the new event. */
-    if (!unlock) {
-      unlock = TRUE;
-      GST_PAD_STREAM_LOCK (funnel->srcpad);
-    }
+  } else if (GST_EVENT_TYPE (event) == GST_EVENT_GAP) {
+    /* If no data is coming and we receive GAP event, need to forward sticky events. */
+    unlock = TRUE;
+    GST_PAD_STREAM_LOCK (funnel->srcpad);
 
     if ((funnel->last_sinkpad == NULL) || (funnel->forward_sticky_events
             && (funnel->last_sinkpad != pad))) {

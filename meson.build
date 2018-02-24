@@ -1,6 +1,6 @@
 project('gstreamer', 'c', 'cpp',
-  version : '1.11.0.1',
-  meson_version : '>= 0.36.0',
+  version : '1.10.1',
+  meson_version : '>= 0.35.0',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
 
@@ -10,12 +10,10 @@ gst_version_major = version_arr[0]
 gst_version_minor = version_arr[1]
 gst_version_micro = version_arr[2]
 if version_arr.length() == 4
-  gst_version_nano = version_arr[3].to_int()
+  gst_version_nano = version_arr[3]
 else
   gst_version_nano = 0
 endif
-
-host_system = host_machine.system()
 
 apiversion = '1.0'
 soversion = 0
@@ -31,21 +29,20 @@ helpers_install_dir = libexecdir + '/gstreamer-1.0/'
 
 cc = meson.get_compiler('c')
 
+# FIXME: Meson should have a way for portably adding -fPIC when needed for use
+# with static libraries that are linked into shared libraries. Or, it should
+# add it by default with an option to turn it off if needed.
+pic_args = ['-fPIC']
+if host_machine.system() == 'windows'
+  pic_args = []
+endif
+
 # Ignore several spurious warnings for things gstreamer does very commonly
 # If a warning is completely useless and spammy, use '/wdXXXX' to suppress it
 # If a warning is harmless but hard to fix, use '/woXXXX' so it's shown once
 # NOTE: Only add warnings here if you are sure they're spurious
 if cc.get_id() == 'msvc'
-  add_project_arguments(
-      '/wd4018', # implicit signed/unsigned conversion
-      '/wd4146', # unary minus on unsigned (beware INT_MIN)
-      '/wd4244', # lossy type conversion (e.g. double -> int)
-      '/wd4305', # truncating type conversion (e.g. double -> float)
-      language : 'c')
-elif cc.has_argument('-Wl,-Bsymbolic-functions')
-  # FIXME: Add an option for this if people ask for it
-  add_project_link_arguments('-Wl,-Bsymbolic-functions', language : 'c')
-  # FIXME: Add FATAL_WARNINGS from configure.ac
+  add_global_arguments('/wd4018', '/wd4244', '/wd4996', language : 'c')
 endif
 
 cdata = configuration_data()
@@ -59,6 +56,7 @@ cdata.set('LOCALEDIR', '"@0@/@1@"'.format(prefix, get_option('localedir')))
 cdata.set('LIBDIR', '"@0@/@1@"'.format(prefix, get_option('libdir')))
 cdata.set('GST_API_VERSION', '"1.0"')
 cdata.set('GETTEXT_PACKAGE', '"gstreamer-1.0"')
+cdata.set('GST_LEVEL_DEFAULT', 'GST_LEVEL_NONE')
 cdata.set('GST_LICENSE', '"LGPL"')
 cdata.set('GST_PACKAGE_ORIGIN', '"Unknown package origin"')
 cdata.set('GST_PACKAGE_NAME', '"GStreamer source release"')
@@ -75,13 +73,6 @@ cdata.set('VERSION', '"@0@"'.format(gst_version))
 cdata.set('MEMORY_ALIGNMENT_MALLOC', 1)
 cdata.set('GST_PLUGIN_SCANNER_INSTALLED', '"@0@/@1@/gst-plugin-scanner"'.format(prefix, helpers_install_dir))
 cdata.set('GST_PTP_HELPER_INSTALLED', '"@0@/@1@/gst-ptp-helper"'.format(prefix, helpers_install_dir))
-
-if gst_version_nano > 0
-    # Have GST_ERROR message printed when running from git
-    cdata.set('GST_LEVEL_DEFAULT', 'GST_LEVEL_ERROR')
-else
-    cdata.set('GST_LEVEL_DEFAULT', 'GST_LEVEL_NONE')
-endif
 
 # These are only needed/used by the ABI tests
 host_defines = [
@@ -107,120 +98,125 @@ endforeach
 # FIXME: should really be called HOST_CPU or such
 cdata.set('TARGET_CPU', '"@0@"'.format(host_machine.cpu()))
 
-check_headers = [
-  'dlfcn.h',
-  'inttypes.h',
-  'memory.h',
-  'poll.h',
-  'stdint.h',
-  'stdio_ext.h',
-  'strings.h',
-  'string.h',
-  'sys/param.h',
-  'sys/poll.h',
-  'sys/prctl.h',
-  'sys/socket.h',
-  'sys/stat.h',
-  'sys/times.h',
-  'sys/time.h',
-  'sys/types.h',
-  'sys/utsname.h',
-  'sys/wait.h',
-  'ucontext.h',
-  'unistd.h',
-  'valgrind/valgrind.h',
-  'sys/resource.h',
+check_headers = [['dlfcn.h','HAVE_DLFCN_H'],
+  ['inttypes.h', 'HAVE_INTTYPES_H'],
+  ['memory.h', 'HAVE_MEMORY_H'],
+  ['poll.h', 'HAVE_POLL_H'],
+  ['stdint.h', 'HAVE_STDINT_H'],
+  ['stdio_ext.h', 'HAVE_STDIO_EXT_H'],
+  ['strings.h', 'HAVE_STRINGS_H'],
+  ['string.h', 'HAVE_STRING_H'],
+  ['sys/param.h', 'HAVE_SYS_PARAM_H'],
+  ['sys/poll.h', 'HAVE_SYS_POLL_H'],
+  ['sys/prctl.h', 'HAVE_SYS_PRCTL_H'],
+  ['sys/socket.h', 'HAVE_SYS_SOCKET_H'],
+  ['sys/stat.h', 'HAVE_SYS_STAT_H'],
+  ['sys/times.h', 'HAVE_SYS_TIMES_H'],
+  ['sys/time.h', 'HAVE_SYS_TIME_H'],
+  ['sys/types.h', 'HAVE_SYS_TYPES_H'],
+  ['sys/utsname.h', 'HAVE_SYS_UTSNAME_H'],
+  ['sys/wait.h', 'HAVE_SYS_WAIT_H'],
+  ['ucontext.h', 'HAVE_UCONTEXT_H'],
+  ['unistd.h', 'HAVE_UNISTD_H'],
+  ['valgrind/valgrind.h', 'HAVE_VALGRIND_VALGRIND_H'],
+  ['sys/resource.h', 'HAVE_SYS_RESOURCE_H'],
 ]
 
 if host_machine.system() == 'windows'
-  check_headers += ['winsock2.h']
+  check_headers += [ ['winsock2.h', 'HAVE_WINSOCK2_H'] ]
 endif
 
 foreach h : check_headers
-  if cc.has_header(h)
-    define = 'HAVE_' + h.underscorify().to_upper()
-    cdata.set(define, 1)
+  if cc.has_header(h.get(0))
+    cdata.set(h.get(1), 1)
   endif
 endforeach
 
-if cc.has_member('struct tm', 'tm_gmtoff', prefix : '#include <time.h>')
+gmtoff_src = '''#include <time.h>
+int main(void) {
+  struct tm t;
+  t.tm_gmtoff = 0;
+  return 0;
+}
+'''
+
+if cc.compiles(gmtoff_src, name : 'tm_gmtoff from time.h')
   cdata.set('HAVE_TM_GMTOFF', 1)
 endif
 
-check_functions = [
-  'gmtime_r',
-  'sigaction',
-  'getrusage',
-  'fseeko',
-  'ftello',
-  'poll',
-  'pselect',
-  'getpagesize',
-  'clock_gettime',
-  # These are needed by libcheck
-  'getline',
-  'mkstemp',
-  'alarm',
-  'gettimeofday',
-]
-
-foreach f : check_functions
-  if cc.has_function(f)
-    define = 'HAVE_' + f.underscorify().to_upper()
-    cdata.set(define, 1)
-  endif
-endforeach
-
+if cc.has_function('gmtime_r', prefix : '#include<time.h>')
+  cdata.set('HAVE_GMTIME_R', 1)
+endif
 if cc.has_function('localtime_r', prefix : '#include<time.h>')
   cdata.set('HAVE_LOCALTIME_R', 1)
-  # Needed by libcheck
-  cdata.set('HAVE_DECL_LOCALTIME_R', 1)
+endif
+if cc.has_function('sigaction', prefix : '#include<signal.h>')
+  cdata.set('HAVE_SIGACTION', 1)
+endif
+have_getrusage = cc.has_function('getrusage', prefix : '#include <sys/time.h>\n#include <sys/resource.h>')
+if have_getrusage
+  cdata.set('HAVE_GETRUSAGE', 1)
 endif
 
-if cc.links('''#include <pthread.h>
-							 int main() {
-								 pthread_setname_np("example");
-							 }''', name : 'pthread_setname_np(const char*)')
-	cdata.set('HAVE_PTHREAD_SETNAME_NP_WITHOUT_TID', 1)
+if cc.has_function('fseeko', prefix : '#include<stdio.h>')
+  cdata.set('HAVE_FSEEKO', 1)
+endif
+if cc.has_function('ftello', prefix : '#include<stdio.h>')
+  cdata.set('HAVE_FTELLO', 1)
+endif
+if cc.has_function('fsetpos', prefix : '#include<stdio.h>')
+  cdata.set('HAVE_FSETPOS', 1)
+endif
+if cc.has_function('fgetpos', prefix : '#include<stdio.h>')
+  cdata.set('HAVE_FGETPOS', 1)
+endif
+if cc.has_function('poll', prefix : '#include<poll.h>')
+  cdata.set('HAVE_POLL', 1)
+endif
+if cc.has_function('pselect', prefix : '#include<sys/select.h>')
+  cdata.set('HAVE_PSELECT', 1)
+endif
+cdata.set('HAVE_MMAP', 1)
+
+if cc.has_function('posix_memalign', prefix : '#include<stdlib.h>')
+  cdata.set('HAVE_POSIX_MEMALIGN', 1)
+endif
+if cc.has_function('getpagesize', prefix : '#include<unistd.h>')
+  cdata.set('HAVE_GETPAGESIZE', 1)
 endif
 
-# Check for posix timers and the monotonic clock
-time_prefix = '#include <time.h>\n'
-if cdata.has('HAVE_UNISTD_H')
-  time_prefix += '#include <unistd.h>'
-endif
-
-posix_timers_src = time_prefix + '''
-#if !defined(_POSIX_TIMERS) || _POSIX_TIMERS < 0 || !defined(CLOCK_REALTIME)
-#error Either _POSIX_TIMERS or CLOCK_REALTIME not defined
+# With XCode 8, clock_gettime will be incorrectly detected as being available
+# regardless of what version of OS X you target because the symbol is available
+# in the .tbd file as a weak symbol.
+# See: https://bugzilla.gnome.org/show_bug.cgi?id=772451 
+#
+# We cannot simply do cc.has_function with -Wl,-no_weak_imports because the
+# check does its own prototype decl that doesn't trigger that compiler flag.
+#
+# It's only starting from macOS 10.12 and iOS 10.0 that clock_gettime is
+# actually available, so we can unconditionally disable it for older versions.
+disable_clock_gettime_src = '''#include <AvailabilityMacros.h>
+#include <TargetConditionals.h>
+#if defined(TARGET_OS_MAC)
+#  if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_12
+#    error "Not compiling for OS X 10.12 or later"
+#  endif
+#else
+#  if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0
+#    error "Not compiling for iOS 10.0 or later"
+#  endif
 #endif
 '''
-if cc.compiles(posix_timers_src, prefix : time_prefix, name : 'posix timers from time.h')
-  cdata.set('HAVE_POSIX_TIMERS', 1)
-endif
 
-monotonic_clock_src = time_prefix + '''
-#if !defined(_POSIX_MONOTONIC_CLOCK) || _POSIX_MONOTONIC_CLOCK < 0 || !defined(CLOCK_MONOTONIC)
-#error Either _POSIX_MONOTONIC_CLOCK or CLOCK_MONOTONIC not defined
-#endif
-'''
-if cc.compiles(monotonic_clock_src, prefix : time_prefix, name : 'monotonic clock from time.h')
-  cdata.set('HAVE_MONOTONIC_CLOCK', 1)
+if cc.has_function('clock_gettime', prefix : '#include <time.h>')
+  if host_machine.system() == 'darwin'
+    if cc.compiles(disable_clock_gettime_src, name : 'target darwin/ios version has clock_gettime')
+      cdata.set('HAVE_CLOCK_GETTIME', 1)
+    endif
+  else
+    cdata.set('HAVE_CLOCK_GETTIME', 1)
+  endif
 endif
-
-# Check for __uint128_t (gcc) by checking for 128-bit division
-uint128_t_src = '''int main() {
-static __uint128_t v1 = 100;
-static __uint128_t v2 = 10;
-static __uint128_t u;
-u = v1 / v2;
-}'''
-if cc.compiles(uint128_t_src, name : '__uint128_t available')
-  cdata.set('HAVE_UINT128_T', 1)
-endif
-
-# All supported platforms have long long now
-cdata.set('HAVE_LONG_LONG', 1)
 
 # We only want to use the __declspec(dllexport/import) dance in GST_EXPORT when
 # building with MSVC
@@ -231,18 +227,22 @@ else
 endif
 
 # -------------------------------------------------------------------------------------
-# config.h things needed by libcheck
+# config.h things needed by libcheck (FIXME: move into the libcheck meson.build) (tpm)
 # -------------------------------------------------------------------------------------
-if cc.has_function('getpid')
+# FIXME: check if it is _getpid or getpid on windows (tpm)
+if cc.has_function('getpid', prefix : '#include <sys/types.h>\n#include <unistd.h>')
   cdata.set('HAVE_GETPID', 1)
-elif host_system == 'windows' and cc.has_function('_getpid')
-  cdata.set('HAVE_PROCESS_H', 1) # Used by gstreamer too
+elif cc.has_function('_getpid', prefix : '#include <process.h>')
   cdata.set('HAVE__GETPID', 1)
 endif
-if cc.has_function('strdup')
+# FIXME: check for _strdup() but how/where and with what includes? (windows?) (tpm)
+if cc.has_function('strdup', prefix : '#include <string.h>')
   cdata.set('HAVE_DECL_STRDUP', 1)
-elif host_system == 'windows' and cc.has_function('_strdup')
-  cdata.set('HAVE__STRDUP', 1) # Windows (MSVC)
+elif cc.has_function('_strdup', prefix : '#include <string.h>')
+  cdata.set('HAVE__STRDUP', 1)
+endif
+if cc.has_function('mkstemp', prefix : '#include <stdlib.h>')
+  cdata.set('HAVE_MKSTEMP', 1)
 endif
 if host_machine.system() != 'windows'
   cdata.set('HAVE_FORK', 1)
@@ -250,77 +250,15 @@ else
   # libcheck requires HAVE_FORK to be 0 when fork() is not available
   cdata.set('HAVE_FORK', 0)
 endif
-if cc.has_function('strsignal')
+if cc.has_function('alarm', prefix : '#include <unistd.h>')
+  cdata.set('HAVE_ALARM', 1)
+endif
+if cc.has_function('localtime_r', prefix : '#include <time.h>')
+  cdata.set('HAVE_DECL_LOCALTIME_R', 1)
+endif
+if cc.has_function('strsignal', prefix : '#include <string.h>')
   cdata.set('HAVE_DECL_STRSIGNAL', 1)
 endif
-# Check for availability of types
-if not cc.has_type('clockid_t', prefix : '#include <time.h>')
-  cdata.set('clockid_t', 'int')
-endif
-if not cc.has_type('timer_t', prefix : '#include <time.h>')
-  cdata.set('timer_t', 'int')
-endif
-if not cc.has_members('struct timespec', 'tv_sec', 'tv_nsec',
-		      prefix : '#include <time.h>')
-  cdata.set('STRUCT_TIMESPEC_DEFINITION_MISSING', 1)
-endif
-if not cc.has_members('struct itimerspec', 'it_interval', 'it_value',
-		      prefix : '#include <time.h>')
-  cdata.set('STRUCT_ITIMERSPEC_DEFINITION_MISSING', 1)
-endif
-
-# Platform deps; only ws2_32 and execinfo for now
-platform_deps = []
-if host_machine.system() == 'windows'
-  platform_deps = [cc.find_library('ws2_32')]
-endif
-
-unwind_dep = dependency('libunwind', required : false)
-dw_dep = dependency('libdw', required: false)
-if unwind_dep.found()
-  cdata.set('HAVE_UNWIND', 1)
-  if dw_dep.found()
-    cdata.set('HAVE_DW', 1)
-  else
-    message('Support for backtraces is partial only.')
-  endif
-else
-  if cc.has_function('backtrace')
-    cdata.set('HAVE_BACKTRACE', 1)
-  else
-      message('NO backtraces support.')
-  endif
-endif
-
-if cc.has_header('execinfo.h')
-  if cc.has_function('backtrace', prefix : '#include <execinfo.h>')
-    cdata.set('HAVE_BACKTRACE', 1)
-  else
-    execinfo_dep = cc.find_library('execinfo', required : false)
-    if execinfo_dep.found() and cc.has_function('backtrace', prefix : '#include <execinfo.h>', dependencies : execinfo_dep)
-      cdata.set('HAVE_BACKTRACE', 1)
-      platform_deps += execinfo_dep
-    endif
-  endif
-endif
-
-disable_gst_debug = get_option('disable_gst_debug')
-if get_option('disable_gst_debug')
-    cdata.set('GST_DISABLE_GST_DEBUG_DEFINE', '#define GST_DISABLE_GST_DEBUG 1')
-  add_project_arguments(['-Wno-unused'], language: 'c')
-endif
-
-# Used by the gstutils test
-gmp_dep = cc.find_library('gmp', required : false)
-cdata.set('HAVE_GMP', gmp_dep.found())
-gsl_dep = cc.find_library('gsl', required : false)
-gslcblas_dep = cc.find_library('gslcblas', required : false)
-cdata.set('HAVE_GSL', gsl_dep.found() and gslcblas_dep.found())
-test_deps = [gmp_dep, gsl_dep, gslcblas_dep]
-
-# Used by gstinfo.c
-dl_dep = cc.find_library('dl', required : false)
-cdata.set('HAVE_DLADDR', cc.has_function('dladdr', dependencies : dl_dep))
 
 configure_file(input : 'config.h.meson',
   output : 'config.h',
@@ -342,9 +280,13 @@ else
 endif
 
 mathlib = cc.find_library('m', required : false)
-# Needed for timer_create/settime/delete
-# Also provides clock_gettime in glibc < 2.17
-rt_lib = cc.find_library('rt', required : false)
+rt_lib = cc.find_library('rt', required : false) # clock_gettime
+
+# Platform deps; only ws2_32 for now
+platform_deps = []
+if host_machine.system() == 'windows'
+  platform_deps = [cc.find_library('ws2_32')]
+endif
 
 gir = find_program('g-ir-scanner', required : false)
 gnome = import('gnome')
@@ -362,13 +304,6 @@ vs_module_defs_dir = meson.current_source_dir() + '/win32/common/'
 gst_c_args = ['-DHAVE_CONFIG_H']
 if libtype == 'static'
   gst_c_args += ['-DGST_STATIC_COMPILATION']
-endif
-
-# Used in gst/parse/meson.build and below
-py3 = find_program('python3', required : false)
-if not py3.found()
-  # Maybe 'python' is Python 3
-  py3 = find_program('python')
 endif
 
 subdir('gst')
@@ -391,4 +326,5 @@ else
   endif
 endif
 
-run_command(py3, '-c', 'import shutil; shutil.copy("hooks/pre-commit.hook", ".git/hooks/pre-commit")')
+python3 = find_program('python3')
+run_command(python3, '-c', 'import shutil; shutil.copy("hooks/pre-commit.hook", ".git/hooks/pre-commit")')

@@ -258,8 +258,6 @@ struct _GstBaseSinkPrivate
   GstClockTime rc_time;
   GstClockTime rc_next;
   gsize rc_accumulated;
-
-  gboolean drop_out_of_segment;
 };
 
 #define DO_RUNNING_AVG(avg,val,size) (((val) + ((size)-1) * (avg)) / (size))
@@ -288,7 +286,6 @@ struct _GstBaseSinkPrivate
 #define DEFAULT_ENABLE_LAST_SAMPLE  TRUE
 #define DEFAULT_THROTTLE_TIME       0
 #define DEFAULT_MAX_BITRATE         0
-#define DEFAULT_DROP_OUT_OF_SEGMENT TRUE
 
 enum
 {
@@ -658,8 +655,6 @@ gst_base_sink_init (GstBaseSink * basesink, gpointer g_class)
   priv->throttle_time = DEFAULT_THROTTLE_TIME;
   priv->max_bitrate = DEFAULT_MAX_BITRATE;
 
-  priv->drop_out_of_segment = DEFAULT_DROP_OUT_OF_SEGMENT;
-
   GST_OBJECT_FLAG_SET (basesink, GST_ELEMENT_FLAG_SINK);
 }
 
@@ -715,60 +710,6 @@ gst_base_sink_get_sync (GstBaseSink * sink)
 
   GST_OBJECT_LOCK (sink);
   res = sink->sync;
-  GST_OBJECT_UNLOCK (sink);
-
-  return res;
-}
-
-/**
- * gst_base_sink_set_drop_out_of_segment:
- * @sink: the sink
- * @drop_out_of_segment: drop buffers outside the segment
- *
- * Configure @sink to drop buffers which are outside the current segment
- *
- * Since: 1.12
- */
-void
-gst_base_sink_set_drop_out_of_segment (GstBaseSink * sink,
-    gboolean drop_out_of_segment)
-{
-  GstBaseSinkPrivate *priv;
-
-  g_return_if_fail (GST_IS_BASE_SINK (sink));
-
-  priv = GST_BASE_SINK_GET_PRIVATE (sink);
-
-  GST_OBJECT_LOCK (sink);
-  priv->drop_out_of_segment = drop_out_of_segment;
-  GST_OBJECT_UNLOCK (sink);
-
-}
-
-/**
- * gst_base_sink_get_drop_out_of_segment:
- * @sink: the sink
- *
- * Checks if @sink is currently configured to drop buffers which are outside
- * the current segment
- *
- * Returns: %TRUE if the sink is configured to drop buffers outside the
- * current segment.
- *
- * Since: 1.12
- */
-gboolean
-gst_base_sink_get_drop_out_of_segment (GstBaseSink * sink)
-{
-  GstBaseSinkPrivate *priv;
-  gboolean res;
-
-  g_return_val_if_fail (GST_IS_BASE_SINK (sink), FALSE);
-
-  priv = GST_BASE_SINK_GET_PRIVATE (sink);
-
-  GST_OBJECT_LOCK (sink);
-  res = priv->drop_out_of_segment;
   GST_OBJECT_UNLOCK (sink);
 
   return res;
@@ -2239,13 +2180,6 @@ no_clock:
  * against the clock it must unblock when going from PLAYING to the PAUSED state
  * and call this method before continuing to render the remaining data.
  *
- * If the #GstBaseSinkClass.render() method can block on something else than
- * the clock, it must also be ready to unblock immediately on
- * the #GstBaseSinkClass.unlock() method and cause the
- * #GstBaseSinkClass.render() method to immediately call this function.
- * In this case, the subclass must be prepared to continue rendering where it
- * left off if this function returns %GST_FLOW_OK.
- *
  * This function will block until a state change to PLAYING happens (in which
  * case this function returns %GST_FLOW_OK) or the processing must be stopped due
  * to a state change to READY or a FLUSH event (in which case this function
@@ -3439,8 +3373,7 @@ gst_base_sink_chain_unlocked (GstBaseSink * basesink, GstPad * pad,
       pts_end = pts + (end - start);
 
     if (G_UNLIKELY (!gst_segment_clip (segment,
-                GST_FORMAT_TIME, pts, pts_end, NULL, NULL)
-            && priv->drop_out_of_segment))
+                GST_FORMAT_TIME, pts, pts_end, NULL, NULL)))
       goto out_of_segment;
   }
 
@@ -3482,12 +3415,6 @@ gst_base_sink_chain_unlocked (GstBaseSink * basesink, GstPad * pad,
         GST_OBJECT_UNLOCK (basesink);
       }
     }
-
-    /* We are about to prepare the first frame, make sure we have prerolled
-     * already. This prevent nesting prepare/render calls. */
-    ret = gst_base_sink_do_preroll (basesink, obj);
-    if (G_UNLIKELY (ret != GST_FLOW_OK))
-      goto preroll_failed;
 
     if (G_UNLIKELY (late))
       goto dropped;
@@ -3651,11 +3578,6 @@ dropped:
       gst_element_post_message (GST_ELEMENT_CAST (basesink), qos_msg);
     }
     goto done;
-  }
-preroll_failed:
-  {
-    GST_DEBUG_OBJECT (basesink, "preroll failed: %s", gst_flow_get_name (ret));
-    return ret;
   }
 }
 

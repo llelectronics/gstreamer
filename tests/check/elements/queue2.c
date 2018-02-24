@@ -371,7 +371,6 @@ GST_START_TEST (test_watermark_and_fill_level)
 
   gst_element_set_state (pipe, GST_STATE_NULL);
   gst_object_unref (pipe);
-  gst_object_unref (inputpad);
 }
 
 GST_END_TEST;

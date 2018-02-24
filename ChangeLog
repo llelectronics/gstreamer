@@ -1,9 +1,518 @@
-=== release 1.10.0 ===
+=== release 1.10.4 ===
 
-2016-11-01  Sebastian Dröge <slomo@coaxion.net>
+2017-02-23  Sebastian Dröge <slomo@coaxion.net>
 
 	* configure.ac:
-	  releasing 1.10.0
+	  releasing 1.10.4
+
+2017-02-21 20:23:51 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* libs/gst/base/gstbytereader.c:
+	* tests/check/libs/bytereader.c:
+	  bytereader: fix peek value when scanning for 00 00 01 with non-0 offset
+	  We would add the offset a second time in _scan_for_start_code()
+	  when we found a result, but it's already been added to the data
+	  pointer at the beginning of _masked_scan_uint32_peek(), so the
+	  peeked value would be wrong if the initial offset was >0, and
+	  we would potentially read memory out-of-bounds.
+	  Add unit test for all of this.
+	  https://bugzilla.gnome.org/show_bug.cgi?id=778365
+
+2017-02-20 12:16:32 +0100  Wim Taymans <wtaymans@redhat.com>
+
+	* gst/gstinfo.h:
+	  info: put () around macro arguments
+	  Put braces around macro arguments or else we might run into problems
+	  with operater precedence.
+
+2017-02-20 10:49:46 +0100  Wim Taymans <wtaymans@redhat.com>
+
+	* gst/gstdeviceproviderfactory.c:
+	  deviceproviderfactory: fix empty class check
+
+2017-01-31 21:19:18 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/parse/grammar.y:
+	  parse: Don't translate the "bin" element name
+	  Otherwise we won't be able to create bins, there is no element called
+	  "Behälter" if you're using a German locale.
+	  https://bugzilla.gnome.org/show_bug.cgi?id=777998
+
+=== release 1.10.3 ===
+
+2017-01-30 16:26:20 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* ChangeLog:
+	* NEWS:
+	* RELEASE:
+	* configure.ac:
+	* docs/plugins/inspect/plugin-coreelements.xml:
+	* gstreamer.doap:
+	* win32/common/config.h:
+	* win32/common/gstversion.h:
+	  Release 1.10.3
+
+2017-01-30 15:22:00 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* po/af.po:
+	* po/az.po:
+	* po/be.po:
+	* po/bg.po:
+	* po/ca.po:
+	* po/cs.po:
+	* po/da.po:
+	* po/de.po:
+	* po/el.po:
+	* po/en_GB.po:
+	* po/eo.po:
+	* po/es.po:
+	* po/eu.po:
+	* po/fi.po:
+	* po/fr.po:
+	* po/gl.po:
+	* po/hr.po:
+	* po/hu.po:
+	* po/id.po:
+	* po/it.po:
+	* po/ja.po:
+	* po/lt.po:
+	* po/nb.po:
+	* po/nl.po:
+	* po/pl.po:
+	* po/pt_BR.po:
+	* po/ro.po:
+	* po/ru.po:
+	* po/rw.po:
+	* po/sk.po:
+	* po/sl.po:
+	* po/sq.po:
+	* po/sr.po:
+	* po/sv.po:
+	* po/tr.po:
+	* po/uk.po:
+	* po/vi.po:
+	* po/zh_CN.po:
+	* po/zh_TW.po:
+	  Update .po files
+
+2017-01-15 11:52:44 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* gst/gstdatetime.c:
+	* tests/check/gst/gstdatetime.c:
+	  datetime: fix potential out-of-bound read on malformed datetime string
+	  https://bugzilla.gnome.org/show_bug.cgi?id=777263
+
+2017-01-03 02:11:27 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/gstcaps.c:
+	  caps: Fix null pointer dereference on invalid static caps
+	  A typo in a static caps string may result in failure to
+	  deserialise it, so don't dereference the result without
+	  checking.
+
+2017-01-03 02:13:30 +1100  Jan Schmidt <jan@centricular.com>
+
+	* plugins/elements/gstqueue.c:
+	  queue: Don't generate GST_FLOW_ERROR without logging
+	  At least log a message to the debug log when generating
+	  a GST_FLOW_ERROR, to make it possible to find where it came from.
+
+2017-01-03 02:12:27 +1100  Jan Schmidt <jan@centricular.com>
+
+	* gst/gstpadtemplate.c:
+	  padtemplate: Fix null pointer dereference on invalid static caps
+	  A typo in a static caps string may result in failure to
+	  deserialise it, so don't dereference the result without
+	  checking.
+
+2016-12-22 18:45:10 +0100  Nicolas Dechesne <nicolas.dechesne@linaro.org>
+
+	* tools/gst-launch.c:
+	  tools: gst-launch: set GST_GL_XINITTHREADS
+	  This ensure that XInitThreads is called and so gl contexts are properly
+	  initialized.
+	  https://bugzilla.gnome.org/show_bug.cgi?id=776401
+
+2016-11-30 21:17:55 +0100  Fabrice Bellet <fabrice@bellet.info>
+
+	* libs/gst/base/gstbasesink.c:
+	  basesink: fix a use after free case
+	  The event may be disposed while being pushed, so we make sure the
+	  debug infrastructure won't use it after the gst_pad_push().
+
+2016-12-13 20:00:55 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* plugins/elements/gstqueue.c:
+	* plugins/elements/gstqueue2.c:
+	  queue/queue2: Ensure that the streaming thread is unlocked after deactivating the srcpad
+	  It might happen that the srcpad task function is never called at all, in
+	  which case unlocking everything from there will never happen.
+	  Make sure to unlock everything another time after the task function is
+	  definitely stopped.
+	  https://bugzilla.gnome.org/show_bug.cgi?id=776039
+
+2016-12-10 18:38:32 +0900  Seungha Yang <sh.yang@lge.com>
+
+	* plugins/elements/gstmultiqueue.c:
+	  multiqueue: Fix overflow on get_buffering_level()
+	  guint64 denominator factor for gst_util_uint64_scale_int() can cause overflow
+	  https://bugzilla.gnome.org/show_bug.cgi?id=775921
+
+2016-12-08 20:20:17 +0100  Stefan Sauer <ensonic@users.sf.net>
+
+	* gst/gstpad.c:
+	  tracer: move the PAD_LINK tracer hook to _pad_link_full()
+	  This is ultimately executing the pad_link. In the previous position we missed
+	  some links, notably ghostpads.
+
+2016-12-12 16:19:13 +0100  Edward Hervey <edward@centricular.com>
+
+	* plugins/elements/gstfilesrc.c:
+	  filesrc: Set GError in another error case
+	  When changing the location while open, properly set the GError regarding
+	  the failure.
+
+2016-12-06 22:32:31 +0100  Peter Seiderer <ps.report@gmx.net>
+
+	* gst/gstconfig.h.in:
+	  gstconfig: Fix unaligned access support for arc and nios2 architectures
+	  Fixes buildroot autobuild failures ([1], [2]).
+	  [1] http://autobuild.buildroot.net/results/fbd/fbdcd90635d5ec3a62ad98a7ff93b71b8e5ecde4
+	  [2] http://autobuild.buildroot.net/results/f3c/f3c9b0ed4ffb114221057237ce22c995b673a98b
+	  https://bugzilla.gnome.org/show_bug.cgi?id=775728
+
+2016-12-06 16:27:23 +0100  Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+
+	* libs/gst/helpers/gst:
+	  helpers/gst: Get bash completion options from gst-launch
+	  It is more likely that gst-launch is installed than ges-launch
+	  Reported-by: Marianna Smidth Buschle <msb@qtec.com>
+	  https://bugzilla.gnome.org/show_bug.cgi?id=775714
+
+2016-12-02 22:47:32 +0100  Marcin Kolny <marcin.kolny@gmail.com>
+
+	* libs/gst/net/gstnetclientclock.c:
+	  net: set clock name in the constructor
+	  gst_net_client_clock_new() and gst_ntp_clock_new() didn't set the
+	  "name" property.
+	  https://bugzilla.gnome.org/show_bug.cgi?id=775538
+
+2016-12-05 21:09:52 +0100  Peter Seiderer <ps.report@gmx.net>
+
+	* gst/gstconfig.h.in:
+	  gstconfig: Fix unaligned access support for microblaze and xtensa architectures
+	  Fixes buildroot autobuild failures, for details see:
+	  http://lists.busybox.net/pipermail/buildroot/2016-December/178895.html
+	  https://bugzilla.gnome.org/show_bug.cgi?id=775661
+
+2016-12-05 11:01:45 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* plugins/elements/gstconcat.c:
+	* plugins/elements/gsttee.c:
+	  elements: Handle GstIterator RESYNC return value correctly in gst_iterator_foreach()
+
+2016-12-01 18:20:11 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/gstbin.c:
+	  bin: Make sure to resync iterators and handle RESYNC at all in gst_iterator_foreach() calls
+
+=== release 1.10.2 ===
+
+2016-11-29 16:20:15 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* ChangeLog:
+	* NEWS:
+	* RELEASE:
+	* configure.ac:
+	* docs/plugins/inspect/plugin-coreelements.xml:
+	* gstreamer.doap:
+	* win32/common/config.h:
+	* win32/common/gstversion.h:
+	  Release 1.10.2
+
+2016-11-29 15:25:41 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* po/af.po:
+	* po/az.po:
+	* po/be.po:
+	* po/bg.po:
+	* po/ca.po:
+	* po/cs.po:
+	* po/da.po:
+	* po/de.po:
+	* po/el.po:
+	* po/en_GB.po:
+	* po/eo.po:
+	* po/es.po:
+	* po/eu.po:
+	* po/fi.po:
+	* po/fr.po:
+	* po/gl.po:
+	* po/hr.po:
+	* po/hu.po:
+	* po/id.po:
+	* po/it.po:
+	* po/ja.po:
+	* po/lt.po:
+	* po/nb.po:
+	* po/nl.po:
+	* po/pl.po:
+	* po/pt_BR.po:
+	* po/ro.po:
+	* po/ru.po:
+	* po/rw.po:
+	* po/sk.po:
+	* po/sl.po:
+	* po/sq.po:
+	* po/sr.po:
+	* po/sv.po:
+	* po/tr.po:
+	* po/uk.po:
+	* po/vi.po:
+	* po/zh_CN.po:
+	* po/zh_TW.po:
+	  Update .po files
+
+2016-11-29 14:08:41 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* po/hr.po:
+	  po: Update translations
+
+2016-11-28 13:48:16 +0100  Edward Hervey <edward@centricular.com>
+
+	* gst/gstutils.c:
+	  gstutils: Fix a pad leak
+	  When requesting a pad from a template and it's already linked, this
+	  means it was a static pad. Since we only want to return an *available*
+	  pad, we must return NULL ... but we must also remove the reference
+	  we got from getting that static pad.
+	  The "No need to unref" message (which wasn't true for quite some time)
+	  dates back from the very very very first commit introducing the 0.10
+	  features.
+
+2016-11-28 12:28:28 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* gst/gstmessage.c:
+	  message: Ensure that the "debug" field of error/warning/info messages is valid UTF-8
+	  The caller might pass arbitrary data here that caused the error, and
+	  trying to set invalid UTF-8 in a GstStructure causes it to be not set at
+	  all. Later when trying to parse it, the field will not exist and the
+	  return value will point to invalid memory. Prevent this by storing NULL
+	  instead.
+	  Also print a g_warning(), the caller should never ever do this to begin
+	  with.
+
+2016-11-15 22:39:43 +1100  Jan Schmidt <jan@centricular.com>
+
+	* plugins/elements/gstdownloadbuffer.c:
+	* plugins/elements/gstqueue.c:
+	* plugins/elements/gstqueue2.c:
+	* plugins/elements/gsttypefindelement.c:
+	  queues: Don't return negative position queries.
+	  When subtracting queued data sizes from upstream queries
+	  in queue, queue2, downloadbuffer and typefind, clamp the
+	  result to not go negative, in case upstream returned
+	  a nonsense value that's too small (as could happen if
+	  upstream is estimating, or just broken)
+
+2016-11-20 14:51:32 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  meson: update version
+
+=== release 1.10.1 ===
+
+2016-11-17 15:51:39 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* ChangeLog:
+	* NEWS:
+	* RELEASE:
+	* configure.ac:
+	* docs/plugins/inspect/plugin-coreelements.xml:
+	* gstreamer.doap:
+	* win32/common/config.h:
+	* win32/common/gstversion.h:
+	  Release 1.10.1
+
+2016-11-17 14:46:26 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* po/id.po:
+	* po/pl.po:
+	* po/zh_CN.po:
+	  Update .po files
+
+2016-11-17 14:42:21 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* po/id.po:
+	* po/pl.po:
+	* po/zh_CN.po:
+	  po: Update translations
+
+2016-11-17 14:39:04 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* po/af.po:
+	* po/az.po:
+	* po/be.po:
+	* po/bg.po:
+	* po/ca.po:
+	* po/cs.po:
+	* po/da.po:
+	* po/de.po:
+	* po/el.po:
+	* po/en_GB.po:
+	* po/eo.po:
+	* po/es.po:
+	* po/eu.po:
+	* po/fi.po:
+	* po/fr.po:
+	* po/gl.po:
+	* po/hr.po:
+	* po/hu.po:
+	* po/id.po:
+	* po/it.po:
+	* po/ja.po:
+	* po/lt.po:
+	* po/nb.po:
+	* po/nl.po:
+	* po/pl.po:
+	* po/pt_BR.po:
+	* po/ro.po:
+	* po/ru.po:
+	* po/rw.po:
+	* po/sk.po:
+	* po/sl.po:
+	* po/sq.po:
+	* po/sr.po:
+	* po/sv.po:
+	* po/tr.po:
+	* po/uk.po:
+	* po/vi.po:
+	* po/zh_CN.po:
+	* po/zh_TW.po:
+	  Update .po files
+
+2016-11-16 23:19:28 +1100  Jan Schmidt <jan@centricular.com>
+
+	* plugins/elements/gstmultiqueue.c:
+	  multiqueue: Make sure not-linked streams get woken up
+	  When running in sync-by-running-time mode, pad groups
+	  that have exactly 1 pad and it's not-linked might never
+	  wake up after computing a high time, as the per-pad-group
+	  high time was only recomputed when a pad in the group
+	  advances.
+	  Wake those up using the global multiqueue high-time across
+	  all other groups instead.
+	  https://bugzilla.gnome.org/show_bug.cgi?id=774322
+
+2016-03-29 10:38:05 +0300  Sebastian Dröge <sebastian@centricular.com>
+
+	* plugins/elements/gsttee.c:
+	  tee: Set GST_PAD_FLAG_PROXY_CAPS before forwarding sticky events
+	  https://bugzilla.gnome.org/show_bug.cgi?id=752213
+
+2016-04-27 10:57:29 +0200  Nicolas Huet <nicolas.huet@parrot.com>
+
+	* libs/gst/base/gstadapter.c:
+	  adapter: fix distance when getting prev pts/dts at offset
+	  https://bugzilla.gnome.org/show_bug.cgi?id=765662
+
+2016-07-21 10:52:30 +0200  Guillaume Desmottes <guillaume.desmottes@collabora.co.uk>
+
+	* libs/gst/base/gstbasetransform.c:
+	  basetransform: fix pool leak when early returning in decide_allocation
+	  https://bugzilla.gnome.org/show_bug.cgi?id=769023
+
+2016-11-11 04:41:39 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* libs/gst/base/meson.build:
+	  meson: Add GstBase-1.0.gir to gst_base_dep
+	  Without this, GIR generators can't find and use it
+
+2016-11-08 17:09:53 +0100  Victor Toso <me@victortoso.com>
+
+	* tests/misc/netclock-replay.c:
+	  tests: Fix compile warning on mingw64
+	  In file included from ../../libs/gst/net/gstntppacket.c:35:0,
+	  from netclock-replay.c:25:
+	  ../../config.h:546:0: error: "__MSVCRT_VERSION__" redefined [-Werror]
+	  #define __MSVCRT_VERSION__ 0x0601
+	  In file included from /usr/x86_64-w64-mingw32/sys-root/mingw/include/crtdefs.h:10:0,
+	  from /usr/x86_64-w64-mingw32/sys-root/mingw/include/stdio.h:9,
+	  from netclock-replay.c:21:
+	  /usr/x86_64-w64-mingw32/sys-root/mingw/include/_mingw.h:220:0: note:
+	  this is the location of the previous definition
+	  # define __MSVCRT_VERSION__ 0x0700
+	  https://bugzilla.gnome.org/show_bug.cgi?id=774108
+
+2016-11-08 16:58:53 +0100  Victor Toso <me@victortoso.com>
+
+	* gst/gstpoll.c:
+	  pool: Fix compiler warning on mingw64
+	  gstpoll.c: In function 'release_event':
+	  gstpoll.c:239:3: error: suggest parentheses around assignment used as
+	  truth value [-Werror=parentheses]
+	  if (status = WaitForSingleObject (set->wakeup_event, INFINITE)) {
+	  ^~
+	  https://bugzilla.gnome.org/show_bug.cgi?id=774108
+
+2016-11-02 14:11:43 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* libs/gst/check/libcheck/clock_gettime.c:
+	  clock_gettime.c: Use __APPLE__ instead of __MACH__
+	  Hurd also defines __MACH__, but it does not have mach_absolute_time. Use
+	  the more strict __APPLE__ instead.
+	  Has also been sent upstream: https://github.com/libcheck/check/pull/65
+
+2016-11-04 10:19:17 -0300  Thibault Saunier <thibault.saunier@osg.samsung.com>
+
+	* meson.build:
+	  meson: Unset the plugin paths to generate the .gir files
+	  Avoiding problems when using subproject:
+	  Failed to load plugin 'something.so: file too short
+
+2016-11-09 14:07:28 -0300  Thibault Saunier <thibault.saunier@osg.samsung.com>
+
+	* libs/gst/base/meson.build:
+	* libs/gst/controller/meson.build:
+	* libs/gst/net/meson.build:
+	  meson: Advertise dependency on gst_dep generating girs
+	  And do not simply link to libgst as the gir information
+	  location only exist in declare_dependecy
+	  https://bugzilla.gnome.org/show_bug.cgi?id=774044
+
+2016-11-02 14:01:38 +0530  Nirbheek Chauhan <nirbheek@centricular.com>
+
+	* m4/check-checks.m4:
+	  build: Fix AM_CONDITIONAL check for clock_gettime
+	  It was always evaluating to false, so clock_gettime.c was always being
+	  included into libcheck. This breaks building on Hurd and causes us to
+	  always override clock_gettime() even when it is available.
+	  https://bugzilla.gnome.org/show_bug.cgi?id=773813
+
+2016-11-01 19:40:32 +0000  Tim-Philipp Müller <tim@centricular.com>
+
+	* meson.build:
+	  meson: update version
+
+=== release 1.10.0 ===
+
+2016-11-01 17:50:24 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* ChangeLog:
+	* NEWS:
+	* RELEASE:
+	* configure.ac:
+	* docs/plugins/inspect/plugin-coreelements.xml:
+	* gstreamer.doap:
+	* win32/common/config.h:
+	* win32/common/gstenumtypes.c:
+	* win32/common/gstversion.h:
+	  Release 1.10.0
+
+2016-11-01 17:40:11 +0200  Sebastian Dröge <sebastian@centricular.com>
+
+	* po/nb.po:
+	  Update .po files
 
 2016-11-01 17:38:43 +0200  Sebastian Dröge <sebastian@centricular.com>
 

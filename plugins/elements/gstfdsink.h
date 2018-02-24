@@ -62,7 +62,6 @@ struct _GstFdSink {
   guint64 current_pos;
 
   gboolean seekable;
-  gboolean unlock; /* OBJECT LOCK */
 };
 
 struct _GstFdSinkClass {

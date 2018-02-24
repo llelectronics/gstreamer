@@ -14,11 +14,11 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
-#include "libcompat/libcompat.h"
+#include "libcompat.h"
 
 #include <sys/types.h>
 #include <time.h>
@@ -59,9 +59,7 @@ enum tf_type
 static void srunner_run_init (SRunner * sr, enum print_output print_mode);
 static void srunner_run_end (SRunner * sr, enum print_output print_mode);
 static void srunner_iterate_suites (SRunner * sr,
-    const char *sname, const char *tcname,
-    const char *include_tags,
-    const char *exclude_tags, enum print_output print_mode);
+    const char *sname, const char *tcname, enum print_output print_mode);
 static void srunner_iterate_tcase_tfuns (SRunner * sr, TCase * tc);
 static void srunner_add_failure (SRunner * sr, TestResult * tf);
 static TestResult *srunner_run_setup (List * func_list,
@@ -95,8 +93,11 @@ static int waserror (int status, int expected_signal);
 
 static int alarm_received;
 static pid_t group_pid;
-static struct sigaction sigint_old_action;
-static struct sigaction sigterm_old_action;
+
+#if defined(HAVE_SIGACTION) && defined(HAVE_FORK)
+static struct sigaction old_action[3];
+static struct sigaction new_action[3];
+#endif /* HAVE_SIGACTION && HAVE_FORK */
 
 static void CK_ATTRIBUTE_UNUSED
 sig_handler (int sig_nr)
@@ -107,21 +108,26 @@ sig_handler (int sig_nr)
       killpg (group_pid, SIGKILL);
       break;
     case SIGTERM:
-    case SIGINT:
-    {
+    case SIGINT:{
       pid_t own_group_pid;
-      int child_sig = SIGTERM;
+      int idx;
+      int child_sig;
 
       if (sig_nr == SIGINT) {
+        idx = 1;
         child_sig = SIGKILL;
-        sigaction (SIGINT, &sigint_old_action, NULL);
-      } else {
-        sigaction (SIGTERM, &sigterm_old_action, NULL);
+      } else {                  /* if (sig_nr == SIGTERM) */
+
+        idx = 2;
+        child_sig = SIGTERM;
       }
 
       killpg (group_pid, child_sig);
 
-      /* POSIX says that calling killpg(0)
+      /* Restore old signal handler... */
+      sigaction (sig_nr, &old_action[idx], NULL);
+
+      /* ... and call it. POSIX says that calling killpg(0)
        * does not necessarily mean to call it on the callers
        * group pid! */
       own_group_pid = getpgrp ();
@@ -158,19 +164,13 @@ srunner_run_end (SRunner * sr, enum print_output CK_ATTRIBUTE_UNUSED print_mode)
 static void
 srunner_iterate_suites (SRunner * sr,
     const char *sname, const char *tcname,
-    const char *include_tags,
-    const char *exclude_tags, enum print_output CK_ATTRIBUTE_UNUSED print_mode)
+    enum print_output CK_ATTRIBUTE_UNUSED print_mode)
 {
-  List *include_tag_lst;
-  List *exclude_tag_lst;
   List *slst;
   List *tcl;
   TCase *tc;
 
   slst = sr->slst;
-
-  include_tag_lst = tag_string_to_list (include_tags);
-  exclude_tag_lst = tag_string_to_list (exclude_tags);
 
   for (check_list_front (slst); !check_list_at_end (slst);
       check_list_advance (slst)) {
@@ -191,27 +191,12 @@ srunner_iterate_suites (SRunner * sr,
       if ((tcname != NULL) && (strcmp (tcname, tc->name) != 0)) {
         continue;
       }
-      if (include_tags != NULL) {
-        if (!tcase_matching_tag (tc, include_tag_lst)) {
-          continue;
-        }
-      }
-      if (exclude_tags != NULL) {
-        if (tcase_matching_tag (tc, exclude_tag_lst)) {
-          continue;
-        }
-      }
 
       srunner_run_tcase (sr, tc);
     }
 
     log_suite_end (sr, s);
   }
-
-  check_list_apply (include_tag_lst, free);
-  check_list_apply (exclude_tag_lst, free);
-  check_list_free (include_tag_lst);
-  check_list_free (exclude_tag_lst);
 }
 
 static void
@@ -582,11 +567,7 @@ set_fork_info (TestResult * tr, int status, int signal_expected,
         free (tr->msg);
       }
       tr->msg = exit_msg (exit_status);
-      if (exit_status == allowed_exit_value) {
-        tr->rtype = CK_FAILURE; /* normal exit status */
-      } else {
-        tr->rtype = CK_FAILURE; /* early exit */
-      }
+      tr->rtype = CK_FAILURE;   /* normal exit status */
     }
   }
 }
@@ -668,7 +649,6 @@ srunner_fork_status (SRunner * sr)
       return CK_FORK;
 #else /* HAVE_FORK */
       eprintf ("This version does not support fork", __FILE__, __LINE__);
-      /* Ignoring, as Check is not compiled with fork support. */
       return CK_NOFORK;
 #endif /* HAVE_FORK */
     }
@@ -683,8 +663,6 @@ srunner_set_fork_status (SRunner * sr, enum fork_status fstat)
   /* If fork() is unavailable, do not allow a fork mode to be set */
   if (fstat != CK_NOFORK) {
     eprintf ("This version does not support fork", __FILE__, __LINE__);
-    /* Overriding, as Check is not compiled with fork support. */
-    fstat = CK_NOFORK;
   }
 #endif /* ! HAVE_FORK */
   sr->fstat = fstat;
@@ -699,27 +677,15 @@ srunner_run_all (SRunner * sr, enum print_output print_mode)
 }
 
 void
-srunner_run_tagged (SRunner * sr, const char *sname, const char *tcname,
-    const char *include_tags, const char *exclude_tags,
+srunner_run (SRunner * sr, const char *sname, const char *tcname,
     enum print_output print_mode)
 {
-#if defined(HAVE_SIGACTION) && defined(HAVE_FORK)
-  static struct sigaction sigalarm_old_action;
-  static struct sigaction sigalarm_new_action;
-  static struct sigaction sigint_new_action;
-  static struct sigaction sigterm_new_action;
-#endif /* HAVE_SIGACTION && HAVE_FORK */
-
-  /*  Get the selected test suite and test case from the
+  /* Get the selected test suite and test case from the
      environment.  */
   if (!tcname)
     tcname = getenv ("CK_RUN_CASE");
   if (!sname)
     sname = getenv ("CK_RUN_SUITE");
-  if (!include_tags)
-    include_tags = getenv ("CK_INCLUDE_TAGS");
-  if (!exclude_tags)
-    exclude_tags = getenv ("CK_EXCLUDE_TAGS");
 
   if (sr == NULL)
     return;
@@ -728,34 +694,22 @@ srunner_run_tagged (SRunner * sr, const char *sname, const char *tcname,
         __FILE__, __LINE__, print_mode);
   }
 #if defined(HAVE_SIGACTION) && defined(HAVE_FORK)
-  memset (&sigalarm_new_action, 0, sizeof (sigalarm_new_action));
-  sigalarm_new_action.sa_handler = sig_handler;
-  sigaction (SIGALRM, &sigalarm_new_action, &sigalarm_old_action);
-
-  memset (&sigint_new_action, 0, sizeof (sigint_new_action));
-  sigint_new_action.sa_handler = sig_handler;
-  sigaction (SIGINT, &sigint_new_action, &sigint_old_action);
-
-  memset (&sigterm_new_action, 0, sizeof (sigterm_new_action));
-  sigterm_new_action.sa_handler = sig_handler;
-  sigaction (SIGTERM, &sigterm_new_action, &sigterm_old_action);
+  memset (&new_action, 0, sizeof new_action);
+  new_action[0].sa_handler = sig_handler;
+  sigaction (SIGALRM, &new_action[0], &old_action[0]);
+  new_action[1].sa_handler = sig_handler;
+  sigaction (SIGINT, &new_action[1], &old_action[1]);
+  new_action[2].sa_handler = sig_handler;
+  sigaction (SIGTERM, &new_action[2], &old_action[2]);
 #endif /* HAVE_SIGACTION && HAVE_FORK */
   srunner_run_init (sr, print_mode);
-  srunner_iterate_suites (sr, sname, tcname, include_tags, exclude_tags,
-      print_mode);
+  srunner_iterate_suites (sr, sname, tcname, print_mode);
   srunner_run_end (sr, print_mode);
 #if defined(HAVE_SIGACTION) && defined(HAVE_FORK)
-  sigaction (SIGALRM, &sigalarm_old_action, NULL);
-  sigaction (SIGINT, &sigint_old_action, NULL);
-  sigaction (SIGTERM, &sigterm_old_action, NULL);
+  sigaction (SIGALRM, &old_action[0], NULL);
+  sigaction (SIGINT, &old_action[1], NULL);
+  sigaction (SIGTERM, &old_action[2], NULL);
 #endif /* HAVE_SIGACTION && HAVE_FORK */
-}
-
-void
-srunner_run (SRunner * sr, const char *sname, const char *tcname,
-    enum print_output print_mode)
-{
-  srunner_run_tagged (sr, sname, tcname, NULL, NULL, print_mode);
 }
 
 pid_t
@@ -794,7 +748,5 @@ check_waitpid_and_exit (pid_t pid CK_ATTRIBUTE_UNUSED)
   exit (EXIT_SUCCESS);
 #else /* HAVE_FORK */
   eprintf ("This version does not support fork", __FILE__, __LINE__);
-  /* Ignoring, as Check is not compiled with fork support. */
-  exit (EXIT_FAILURE);
 #endif /* HAVE_FORK */
 }

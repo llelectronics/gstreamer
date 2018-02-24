@@ -30,7 +30,7 @@ core_tests = [
   [ 'gst/gstobject.c' ],
   [ 'gst/gstpad.c', not have_registry ],
   [ 'gst/gstparamspecs.c' ],
-  [ 'gst/gstprintf.c', disable_gst_debug],
+  [ 'gst/gstprintf.c', not have_debug ],
   [ 'gst/gstpipeline.c', not have_registry ],
   [ 'gst/gstpoll.c' ],
   [ 'gst/gstplugin.c', not have_registry ],
@@ -77,7 +77,6 @@ core_tests = [
   [ 'libs/queuearray.c' ],
   [ 'elements/capsfilter.c', not have_registry ],
   [ 'elements/concat.c', not have_registry ],
-  [ 'elements/dataurisrc.c', not have_registry ],
   [ 'elements/fakesrc.c', not have_registry ],
   [ 'elements/fdsrc.c', not have_registry ],
   [ 'elements/filesink.c', not have_registry ],
@@ -133,7 +132,7 @@ foreach t : core_tests
         c_args : gst_c_args + test_defines,
         cpp_args : gst_c_args + test_defines,
         include_directories : [configinc],
-        dependencies : test_deps + glib_deps + gst_deps,
+        dependencies : glib_deps + gst_deps,
     )
 
     env = environment()

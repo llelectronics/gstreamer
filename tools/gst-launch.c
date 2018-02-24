@@ -1017,7 +1017,7 @@ main (int argc, char *argv[])
       g_printerr ("Error initializing: %s\n", GST_STR_NULL (err->message));
     else
       g_printerr ("Error initializing: Unknown error!\n");
-    g_clear_error (&err);
+    g_clear_error (&error);
     g_option_context_free (ctx);
     exit (1);
   }

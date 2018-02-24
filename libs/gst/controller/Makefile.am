@@ -7,7 +7,6 @@ libgstcontroller_@GST_API_VERSION@_include_HEADERS = \
 	gstdirectcontrolbinding.h \
 	gsttimedvaluecontrolsource.h \
 	gstinterpolationcontrolsource.h \
-	gstproxycontrolbinding.h \
 	gsttriggercontrolsource.h \
 	gstlfocontrolsource.h
 
@@ -16,7 +15,6 @@ libgstcontroller_@GST_API_VERSION@_la_SOURCES = \
 	gstdirectcontrolbinding.c \
 	gsttimedvaluecontrolsource.c \
 	gstinterpolationcontrolsource.c \
-	gstproxycontrolbinding.c \
 	gsttriggercontrolsource.c \
 	gstlfocontrolsource.c
 

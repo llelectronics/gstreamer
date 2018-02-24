@@ -13,7 +13,6 @@ GObject
           GstFdSink
           GstFileSink
         GstBaseSrc
-          GstDataURISrc
           GstFakeSrc
           GstFileSrc
           GstPushSrc
@@ -40,7 +39,6 @@ GObject
       GstPlugin
       GstPluginFeature
         GstDeviceProviderFactory
-        GstDynamicTypeFactory
         GstElementFactory
         GstTracerFactory
         GstTypeFindFactory

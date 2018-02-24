@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gstreamer 1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-01-12 14:25+0200\n"
+"POT-Creation-Date: 2017-02-23 15:12+0200\n"
 "PO-Revision-Date: 2016-11-02 13:43+0800\n"
 "Last-Translator: Tianze Wang <zwpwjwtz@126.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -840,18 +840,6 @@ msgstr "无法设置组件“%2$s”中的属性“%1$s”为“%3$s”"
 msgid "Delayed linking failed."
 msgstr "延迟链接失败。"
 
-#, fuzzy, c-format
-msgid "could not link %s to %s, %s can't handle caps %s"
-msgstr "无法将 %s 链接到 %s"
-
-#, fuzzy, c-format
-msgid "could not link %s to %s, neither element can handle caps %s"
-msgstr "无法连接 URI“%s”的消音组件"
-
-#, fuzzy, c-format
-msgid "could not link %s to %s with caps %s"
-msgstr "无法将 %s 链接到 %s"
-
 #, c-format
 msgid "could not link %s to %s"
 msgstr "无法将 %s 链接到 %s"
@@ -882,9 +870,6 @@ msgstr "URI“%s”无源组件"
 
 msgid "syntax error"
 msgstr "语法错误"
-
-msgid "bin"
-msgstr "储仓"
 
 #, c-format
 msgid "specified empty bin \"%s\", not allowed"
@@ -1067,11 +1052,6 @@ msgstr ""
 
 msgid "List the plugin contents"
 msgstr "列出插件信息"
-
-msgid ""
-"A slashes ('/') separated list of types of elements (also known as klass) to "
-"list. (unordered)"
-msgstr ""
 
 msgid "Check if the specified element or plugin exists"
 msgstr "检查指定的组件或插件是否存在"
@@ -1290,6 +1270,9 @@ msgstr "设置 NULL 管道 ...\n"
 msgid "Freeing pipeline ...\n"
 msgstr "释放管道资源 ...\n"
 
+#~ msgid "bin"
+#~ msgstr "储仓"
+
 #~ msgid "Internal data stream error."
 #~ msgstr "内部数据流错误。"
 
@@ -1307,6 +1290,9 @@ msgstr "释放管道资源 ...\n"
 
 #~ msgid "no element to link URI \"%s\" to"
 #~ msgstr "无组件让 URI“%s”来连接"
+
+#~ msgid "could not link sink element for URI \"%s\""
+#~ msgstr "无法连接 URI“%s”的消音组件"
 
 #~ msgid "maximum"
 #~ msgstr "最大"

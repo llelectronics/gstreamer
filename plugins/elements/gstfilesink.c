@@ -110,7 +110,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_file_sink_debug);
 
 #define DEFAULT_LOCATION 	NULL
 #define DEFAULT_BUFFER_MODE 	GST_FILE_SINK_BUFFER_MODE_DEFAULT
-#define DEFAULT_BUFFER_SIZE 	128 * 2048
+#define DEFAULT_BUFFER_SIZE 	64 * 1024
 #define DEFAULT_APPEND		FALSE
 
 enum
@@ -662,7 +662,7 @@ gst_file_sink_render_buffers (GstFileSink * sink, GstBuffer ** buffers,
       num_buffers, total_mems, sink->current_pos);
 
   return gst_writev_buffers (GST_OBJECT_CAST (sink), fileno (sink->file), NULL,
-      buffers, num_buffers, mem_nums, total_mems, &sink->current_pos, 0);
+      buffers, num_buffers, mem_nums, total_mems, NULL, &sink->current_pos);
 }
 
 static GstFlowReturn

@@ -1,5 +1,4 @@
 GstBin GstChildProxy
-GstDataURISrc GstURIHandler
 GstFdSink GstURIHandler
 GstFdSrc GstURIHandler
 GstFileSink GstURIHandler

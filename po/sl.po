@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gstreamer-1.2.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-01-12 14:25+0200\n"
+"POT-Creation-Date: 2017-02-23 15:12+0200\n"
 "PO-Revision-Date: 2014-04-09 22:38+0100\n"
 "Last-Translator: Klemen Košir <klemen913@gmail.com>\n"
 "Language-Team: Slovenian <translation-team-sl@lists.sourceforge.net>\n"
@@ -871,18 +871,6 @@ msgstr ""
 msgid "Delayed linking failed."
 msgstr ""
 
-#, fuzzy, c-format
-msgid "could not link %s to %s, %s can't handle caps %s"
-msgstr "%s in %s ni mogoče povezati"
-
-#, fuzzy, c-format
-msgid "could not link %s to %s, neither element can handle caps %s"
-msgstr "predmeta korita za naslov URI \"%s\" ni mogoče povezati"
-
-#, fuzzy, c-format
-msgid "could not link %s to %s with caps %s"
-msgstr "%s in %s ni mogoče povezati"
-
 #, c-format
 msgid "could not link %s to %s"
 msgstr "%s in %s ni mogoče povezati"
@@ -912,9 +900,6 @@ msgid "no source element for URI \"%s\""
 msgstr "izvorni predmet za naslov URI \"%s\" ne obstaja"
 
 msgid "syntax error"
-msgstr ""
-
-msgid "bin"
 msgstr ""
 
 #, c-format
@@ -1113,11 +1098,6 @@ msgstr ""
 
 msgid "List the plugin contents"
 msgstr "Izpiši seznam vsebine vstavkov"
-
-msgid ""
-"A slashes ('/') separated list of types of elements (also known as klass) to "
-"list. (unordered)"
-msgstr ""
 
 msgid "Check if the specified element or plugin exists"
 msgstr "Preveri, če podan predmet ali vstavek že obstaja"
@@ -1356,3 +1336,6 @@ msgstr "Sproščanje cevovoda ...\n"
 
 #~ msgid "no element to link URI \"%s\" to"
 #~ msgstr "ni predmeta za povezovanje naslova \"%s\" na"
+
+#~ msgid "could not link sink element for URI \"%s\""
+#~ msgstr "predmeta korita za naslov URI \"%s\" ni mogoče povezati"

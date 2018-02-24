@@ -132,8 +132,14 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #mesondefine HAVE_DLFCN_H
 
+/* Define to 1 if you have the `fgetpos' function. */
+#mesondefine HAVE_FGETPOS
+
 /* Define to 1 if fseeko (and presumably ftello) exists and is declared. */
 #mesondefine HAVE_FSEEKO
+
+/* Define to 1 if you have the `fsetpos' function. */
+#mesondefine HAVE_FSETPOS
 
 /* Define to 1 if you have the `ftello' function. */
 #mesondefine HAVE_FTELLO
@@ -198,6 +204,9 @@
 
 /* Define to 1 if you have the <poll.h> header file. */
 #mesondefine HAVE_POLL_H
+
+/* Define to 1 if you have the `posix_memalign' function. */
+#mesondefine HAVE_POSIX_MEMALIGN
 
 /* Have posix timers */
 #mesondefine HAVE_POSIX_TIMERS
@@ -429,12 +438,3 @@
 #mesondefine HAVE_DECL_STRSIGNAL
 #mesondefine HAVE_GETRUSAGE
 #mesondefine HAVE_SYS_RESOURCE_H
-#mesondefine HAVE_UNWIND
-#mesondefine HAVE_DW
-#mesondefine HAVE_BACKTRACE
-#mesondefine HAVE_GETTIMEOFDAY
-#mesondefine HAVE_GETLINE
-#mesondefine STRUCT_TIMESPEC_DEFINITION_MISSING
-#mesondefine STRUCT_ITIMERSPEC_DEFINITION_MISSING
-#mesondefine clockid_t
-#mesondefine timer_t

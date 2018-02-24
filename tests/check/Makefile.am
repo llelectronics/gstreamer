@@ -81,7 +81,6 @@ REGISTRY_CHECKS =				\
 	generic/sinks				\
 	elements/capsfilter			\
 	elements/concat				\
-	elements/dataurisrc			\
 	elements/fakesink			\
 	elements/fakesrc			\
 	elements/fdsrc			  	\

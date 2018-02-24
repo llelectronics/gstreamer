@@ -1865,8 +1865,7 @@ gst_base_src_send_event (GstElement * element, GstEvent * event)
     case GST_EVENT_TAG:
     case GST_EVENT_CUSTOM_DOWNSTREAM:
     case GST_EVENT_CUSTOM_BOTH:
-    case GST_EVENT_PROTECTION:
-      /* Insert TAG, CUSTOM_DOWNSTREAM, CUSTOM_BOTH, PROTECTION in the dataflow */
+      /* Insert TAG, CUSTOM_DOWNSTREAM, CUSTOM_BOTH in the dataflow */
       GST_OBJECT_LOCK (src);
       src->priv->pending_events =
           g_list_append (src->priv->pending_events, event);

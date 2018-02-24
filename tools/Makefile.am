@@ -32,6 +32,7 @@ if !GST_DISABLE_PARSE
 manpages += gst-launch-@GST_API_VERSION@.1
 endif
 
+CLEANFILES = $(manpages) *.gcno *.gcda
 man_MANS = $(manpages)
 
 # developer helper tools, not meant for installation
@@ -40,7 +41,16 @@ noinst_SCRIPTS = gst-indent
 noinst_HEADERS = tools.h
 
 EXTRA_DIST = \
-	gst-inspect-@GST_API_VERSION@.1 \
-	gst-typefind-@GST_API_VERSION@.1 \
-	gst-launch-@GST_API_VERSION@.1 \
-	$(noinst_SCRIPTS)
+	$(noinst_SCRIPTS) \
+	gst-inspect.1.in \
+	gst-launch.1.in \
+	gst-typefind.1.in
+
+%-@GST_API_VERSION@.1: %.1.in
+	$(AM_V_GEN)sed \
+		-e s,gst-inspect,gst-inspect-@GST_API_VERSION@,g \
+		-e s,gst-launch,gst-launch-@GST_API_VERSION@,g \
+		-e s,gst-typefind,gst-typefind-@GST_API_VERSION@,g \
+		-e s,GST_API_VERSION,@GST_API_VERSION@,g \
+		$< >$@
+

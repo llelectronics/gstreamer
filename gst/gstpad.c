@@ -2522,8 +2522,7 @@ gst_pad_link_full (GstPad * srcpad, GstPad * sinkpad, GstPadLinkCheck flags)
   GST_CAT_INFO (GST_CAT_PADS, "linked %s:%s and %s:%s, successful",
       GST_DEBUG_PAD_NAME (srcpad), GST_DEBUG_PAD_NAME (sinkpad));
 
-  if (!(flags & GST_PAD_LINK_CHECK_NO_RECONFIGURE))
-    gst_pad_send_event (srcpad, gst_event_new_reconfigure ());
+  gst_pad_send_event (srcpad, gst_event_new_reconfigure ());
 
 done:
   if (G_LIKELY (parent)) {
@@ -3077,13 +3076,12 @@ gst_pad_query_accept_caps_default (GstPad * pad, GstQuery * query)
 
   gst_query_parse_accept_caps (query, &caps);
   if (!allowed) {
-    if (GST_PAD_IS_ACCEPT_TEMPLATE (pad)) {
+    GST_CAT_DEBUG_OBJECT (GST_CAT_PERFORMANCE, pad,
+        "fallback ACCEPT_CAPS query, consider implementing a specialized version");
+    if (GST_PAD_IS_ACCEPT_TEMPLATE (pad))
       allowed = gst_pad_get_pad_template_caps (pad);
-    } else {
-      GST_CAT_DEBUG_OBJECT (GST_CAT_PERFORMANCE, pad,
-          "fallback ACCEPT_CAPS query, consider implementing a specialized version");
+    else
       allowed = gst_pad_query_caps (pad, caps);
-    }
   }
 
   if (allowed) {

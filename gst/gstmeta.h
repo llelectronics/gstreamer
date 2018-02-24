@@ -197,9 +197,8 @@ struct _GstMetaInfo {
   GstMetaFreeFunction        free_func;
   GstMetaTransformFunction   transform_func;
 
-  /* No padding needed, GstMetaInfo is always allocated by GStreamer and is
-   * not subclassable or stack-allocatable, so we can extend it as we please
-   * just like interfaces */
+  /*< private >*/
+  gpointer _gst_reserved[GST_PADDING];
 };
 
 GType                gst_meta_api_type_register (const gchar *api,

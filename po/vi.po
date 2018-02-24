@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gstreamer 1.7.90\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-01-12 14:25+0200\n"
+"POT-Creation-Date: 2017-02-23 15:12+0200\n"
 "PO-Revision-Date: 2016-03-03 07:44+0700\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: Vietnamese <translation-team-vi@lists.sourceforge.net>\n"
@@ -874,20 +874,6 @@ msgstr "không thể đặt thuộc tính “%s” trong phần tử “%s” th
 msgid "Delayed linking failed."
 msgstr "Gặp lỗi khi liên kết trễ."
 
-#, fuzzy, c-format
-msgid "could not link %s to %s, %s can't handle caps %s"
-msgstr "không thể liên kết %s đến %s"
-
-#, fuzzy, c-format
-msgid "could not link %s to %s, neither element can handle caps %s"
-msgstr ""
-"không thể kết hợp phần tử quản lý việc phân phối dữ liệu vào đệm khác nhau, "
-"cho URI “%s”"
-
-#, fuzzy, c-format
-msgid "could not link %s to %s with caps %s"
-msgstr "không thể liên kết %s đến %s"
-
 #, c-format
 msgid "could not link %s to %s"
 msgstr "không thể liên kết %s đến %s"
@@ -920,9 +906,6 @@ msgstr "không có phần tử nguồn cho URI “%s”"
 
 msgid "syntax error"
 msgstr "lỗi cú pháp"
-
-msgid "bin"
-msgstr "nhị phân"
 
 #, c-format
 msgid "specified empty bin \"%s\", not allowed"
@@ -1108,11 +1091,6 @@ msgstr ""
 
 msgid "List the plugin contents"
 msgstr "Liệt kê nội dung phần bổ sung"
-
-msgid ""
-"A slashes ('/') separated list of types of elements (also known as klass) to "
-"list. (unordered)"
-msgstr ""
 
 msgid "Check if the specified element or plugin exists"
 msgstr "Kiểm tra xem một phần tử hay phần bổ xung đã cho có tồn tại hay không"
@@ -1337,6 +1315,9 @@ msgstr "Đang đặt đường ống thành VÔ_GIÁ_TRỊ …\n"
 msgid "Freeing pipeline ...\n"
 msgstr "Đang giải phóng đường ống …\n"
 
+#~ msgid "bin"
+#~ msgstr "nhị phân"
+
 #~ msgid "Internal data stream error."
 #~ msgstr "Lỗi luồng dữ liệu nội bộ."
 
@@ -1355,6 +1336,11 @@ msgstr "Đang giải phóng đường ống …\n"
 
 #~ msgid "no element to link URI \"%s\" to"
 #~ msgstr "không có phần tử đến đó cần liên kết URI “%s”"
+
+#~ msgid "could not link sink element for URI \"%s\""
+#~ msgstr ""
+#~ "không thể kết hợp phần tử quản lý việc phân phối dữ liệu vào đệm khác "
+#~ "nhau, cho URI “%s”"
 
 #~ msgid "maximum"
 #~ msgstr "tối đa"

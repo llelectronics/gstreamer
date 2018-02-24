@@ -1,7 +1,7 @@
 # the standard variables don't make sense for an uninstalled copy
 prefix=
 exec_prefix=
-libdir=@controllerlibdir@
+libdir=@abs_top_builddir@/libs/gst/controller/.libs
 includedir=
 girdir=@abs_top_builddir@/libs/gst/controller
 typelibdir=@abs_top_builddir@/libs/gst/controller

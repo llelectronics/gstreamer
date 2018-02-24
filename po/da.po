@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gstreamer 1.7.90\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-01-12 14:25+0200\n"
+"POT-Creation-Date: 2017-02-23 15:12+0200\n"
 "PO-Revision-Date: 2016-06-25 13:26+0200\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
@@ -876,18 +876,6 @@ msgstr "kunne ikke sætte egenskab \"%s\" for element \"%s\" til \"%s\""
 msgid "Delayed linking failed."
 msgstr "Forsinket oprettelse af forbindelse mislykkedes."
 
-#, fuzzy, c-format
-msgid "could not link %s to %s, %s can't handle caps %s"
-msgstr "kunne ikke lænke %s til %s"
-
-#, c-format
-msgid "could not link %s to %s, neither element can handle caps %s"
-msgstr ""
-
-#, fuzzy, c-format
-msgid "could not link %s to %s with caps %s"
-msgstr "kunne ikke lænke %s til %s"
-
 #, c-format
 msgid "could not link %s to %s"
 msgstr "kunne ikke lænke %s til %s"
@@ -918,9 +906,6 @@ msgstr "intet kildeelement for URI \"%s\""
 
 msgid "syntax error"
 msgstr "syntaksfejl"
-
-msgid "bin"
-msgstr "lager"
 
 #, c-format
 msgid "specified empty bin \"%s\", not allowed"
@@ -1114,11 +1099,6 @@ msgstr ""
 
 msgid "List the plugin contents"
 msgstr "Oplist udvidelsesmodulets indhold"
-
-msgid ""
-"A slashes ('/') separated list of types of elements (also known as klass) to "
-"list. (unordered)"
-msgstr ""
 
 msgid "Check if the specified element or plugin exists"
 msgstr "Kontroller om det angivne element eller plugin eksisterer"
@@ -1345,6 +1325,9 @@ msgstr "Rørledning sættes til NUL ...\n"
 
 msgid "Freeing pipeline ...\n"
 msgstr "Rørledning frigøres ...\n"
+
+#~ msgid "bin"
+#~ msgstr "lager"
 
 #~ msgid "Internal data stream error."
 #~ msgstr "Intern datastrømsfejl."

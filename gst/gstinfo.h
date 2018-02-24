@@ -176,15 +176,6 @@ typedef enum {
 } GstDebugColorFlags;
 
 /**
- * GstStackTraceFlags:
- * @GST_STACK_TRACE_SHOW_FULL: Try to retrieve as much information as
- *                             possible when getting the stack trace
- */
-typedef enum {
-    GST_STACK_TRACE_SHOW_FULL = 1 << 0
-} GstStackTraceFlags;
-
-/**
  * GstDebugColorMode:
  * @GST_DEBUG_COLOR_MODE_OFF: Do not use colors in logs.
  * @GST_DEBUG_COLOR_MODE_ON: Paint logs in a platform-specific way.
@@ -422,28 +413,22 @@ gint    gst_info_vasprintf              (gchar ** result,
 gchar * gst_info_strdup_vprintf         (const gchar *format, va_list args) G_GNUC_PRINTF (1, 0);
 gchar * gst_info_strdup_printf          (const gchar *format, ...) G_GNUC_PRINTF (1, 2);
 
-void    gst_print                       (const gchar * format, ...) G_GNUC_PRINTF (1, 2);
-void    gst_println                     (const gchar * format, ...) G_GNUC_PRINTF (1, 2);
-
-void    gst_printerr                    (const gchar * format, ...) G_GNUC_PRINTF (1, 2);
-void    gst_printerrln                  (const gchar * format, ...) G_GNUC_PRINTF (1, 2);
-
 #ifndef GST_DISABLE_GST_DEBUG
 
 /* cast to void * avoids a warning with gcc 6
  * see https://bugzilla.gnome.org/show_bug.cgi?id=764526 */
 #define gst_debug_add_log_function(func,data,notify) \
 G_STMT_START{                                        \
-  if (func == (void *) gst_debug_log_default) {               \
+  if ((func) == (void *) gst_debug_log_default) {    \
     gst_debug_add_log_function(NULL,data,notify);    \
   } else {                                           \
     gst_debug_add_log_function(func,data,notify);    \
   }                                                  \
 }G_STMT_END
 
-#define gst_debug_remove_log_function(func)   \
-    (func == (void *) gst_debug_log_default) ?         \
-        gst_debug_remove_log_function(NULL) : \
+#define gst_debug_remove_log_function(func)          \
+    ((func) == (void *) gst_debug_log_default) ?     \
+        gst_debug_remove_log_function(NULL) :        \
         gst_debug_remove_log_function(func)
 
 /**
@@ -569,7 +554,7 @@ GST_EXPORT GstDebugLevel            _gst_debug_min;
  */
 #ifdef G_HAVE_ISO_VARARGS
 #define GST_CAT_LEVEL_LOG(cat,level,object,...) G_STMT_START{		\
-  if (G_UNLIKELY (level <= GST_LEVEL_MAX && level <= _gst_debug_min)) {						\
+  if (G_UNLIKELY ((level) <= GST_LEVEL_MAX && (level) <= _gst_debug_min)) {						\
     gst_debug_log ((cat), (level), __FILE__, GST_FUNCTION, __LINE__,	\
         (GObject *) (object), __VA_ARGS__);				\
   }									\
@@ -577,7 +562,7 @@ GST_EXPORT GstDebugLevel            _gst_debug_min;
 #else /* G_HAVE_GNUC_VARARGS */
 #ifdef G_HAVE_GNUC_VARARGS
 #define GST_CAT_LEVEL_LOG(cat,level,object,args...) G_STMT_START{	\
-  if (G_UNLIKELY (level <= GST_LEVEL_MAX && level <= _gst_debug_min)) {						\
+  if (G_UNLIKELY ((level) <= GST_LEVEL_MAX && (level) <= _gst_debug_min)) {						\
     gst_debug_log ((cat), (level), __FILE__, GST_FUNCTION, __LINE__,	\
         (GObject *) (object), ##args );					\
   }									\
@@ -587,7 +572,7 @@ static inline void
 GST_CAT_LEVEL_LOG_valist (GstDebugCategory * cat,
     GstDebugLevel level, gpointer object, const char *format, va_list varargs)
 {
-  if (G_UNLIKELY (level <= GST_LEVEL_MAX && level <= _gst_debug_min)) {
+  if (G_UNLIKELY ((level) <= GST_LEVEL_MAX && (level) <= _gst_debug_min)) {
     gst_debug_log_valist (cat, level, "", "", 0, (GObject *) object, format,
         varargs);
   }
@@ -1579,7 +1564,6 @@ GST_TRACE (const char *format, ...)
 
 
 void gst_debug_print_stack_trace (void);
-gchar * gst_debug_get_stack_trace (GstStackTraceFlags flags);
 
 G_END_DECLS
 

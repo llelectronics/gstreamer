@@ -12,41 +12,25 @@ CFILES =\
 	check_print.c	\
 	check_run.c	\
 	check_str.c	\
-	libcompat/libcompat.c
+	libcompat.c
 
 if !HAVE_ALARM
-CFILES += libcompat/alarm.c
+CFILES += alarm.c
 endif
 
 if !HAVE_CLOCK_GETTIME
-CFILES += libcompat/clock_gettime.c
-endif
-
-if !HAVE_GETTIMEOFDAY
-CFILES += libcompat/gettimeofday.c
-endif
-
-if !HAVE_LOCALTIME_R
-CFILES += libcompat/localtime_r.c
+CFILES += clock_gettime.c
 endif
 
 if !HAVE_STRSIGNAL
-CFILES += libcompat/strsignal.c
-endif
-
-if !HAVE_STRDUP
-CFILES += libcompat/strdup.c
-endif
-
-if !HAVE_GETLINE
-CFILES += libcompat/getline.c
+CFILES += strsignal.c
 endif
 
 if !HAVE_TIMER_CREATE_SETTIME_DELETE
 CFILES +=\
-	libcompat/timer_create.c	\
-	libcompat/timer_settime.c	\
-	libcompat/timer_delete.c
+	timer_create.c	\
+	timer_settime.c	\
+	timer_delete.c
 endif
 
 HFILES =\
@@ -58,7 +42,7 @@ HFILES =\
 	check_pack.h	\
 	check_print.h	\
 	check_str.h	\
-	libcompat/libcompat.h
+	libcompat.h
 
 noinst_HEADERS = $(HFILES)
 
@@ -74,7 +58,3 @@ libcheckinternal_la_LIBADD	+= $(PTHREAD_LIBS)
 else
 libcheckinternal_la_CFLAGS	+= -D_GNU_SOURCE
 endif
-
-# Don't want libcompat to think we don't have these and substitute replacements
-# See libcompat/libcompat.h
-libcheckinternal_la_CFLAGS	+= -DHAVE_SNPRINTF -DHAVE_VSNPRINTF -DHAVE_MALLOC -DHAVE_REALLOC

@@ -55,7 +55,6 @@ IGNORE_CFILES =
 
 EXTRA_HFILES = \
 	$(top_srcdir)/plugins/elements/gstcapsfilter.h \
-	$(top_srcdir)/plugins/elements/gstdataurisrc.h \
 	$(top_srcdir)/plugins/elements/gstdownloadbuffer.h \
 	$(top_srcdir)/plugins/elements/gstfakesrc.h \
 	$(top_srcdir)/plugins/elements/gstfakesink.h \
