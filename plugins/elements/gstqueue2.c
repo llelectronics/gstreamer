@@ -101,7 +101,7 @@ enum
 };
 
 /* other defines */
-#define DEFAULT_BUFFER_SIZE 524288
+#define DEFAULT_BUFFER_SIZE 1048576
 #define QUEUE_IS_USING_TEMP_FILE(queue) ((queue)->temp_template != NULL)
 #define QUEUE_IS_USING_RING_BUFFER(queue) ((queue)->ring_buffer_max_size != 0)  /* for consistency with the above macro */
 #define QUEUE_IS_USING_QUEUE(queue) (!QUEUE_IS_USING_TEMP_FILE(queue) && !QUEUE_IS_USING_RING_BUFFER (queue))
@@ -110,10 +110,10 @@ enum
 
 /* default property values */
 #define DEFAULT_MAX_SIZE_BUFFERS   100  /* 100 buffers */
-#define DEFAULT_MAX_SIZE_BYTES     (256 * 1024 * 1024)    /* 256 MB */
-#define DEFAULT_MAX_SIZE_TIME      10 * GST_SECOND       /* 10 seconds */
-#define DEFAULT_USE_BUFFERING      FALSE
-#define DEFAULT_USE_TAGS_BITRATE   FALSE
+#define DEFAULT_MAX_SIZE_BYTES     (6 * 1024 * 1024)    /* 6 MB */
+#define DEFAULT_MAX_SIZE_TIME      4 * GST_SECOND       /* 4 seconds */
+#define DEFAULT_USE_BUFFERING      TRUE
+#define DEFAULT_USE_TAGS_BITRATE   TRUE
 #define DEFAULT_USE_RATE_ESTIMATE  TRUE
 #define DEFAULT_LOW_PERCENT        8 
 #define DEFAULT_HIGH_PERCENT       99
