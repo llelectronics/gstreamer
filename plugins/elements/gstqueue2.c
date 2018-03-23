@@ -101,7 +101,7 @@ enum
 };
 
 /* other defines */
-#define DEFAULT_BUFFER_SIZE 1048576
+#define DEFAULT_BUFFER_SIZE 4096
 #define QUEUE_IS_USING_TEMP_FILE(queue) ((queue)->temp_template != NULL)
 #define QUEUE_IS_USING_RING_BUFFER(queue) ((queue)->ring_buffer_max_size != 0)  /* for consistency with the above macro */
 #define QUEUE_IS_USING_QUEUE(queue) (!QUEUE_IS_USING_TEMP_FILE(queue) && !QUEUE_IS_USING_RING_BUFFER (queue))
@@ -109,13 +109,13 @@ enum
 #define QUEUE_MAX_BYTES(queue) MIN((queue)->max_level.bytes, (queue)->ring_buffer_max_size)
 
 /* default property values */
-#define DEFAULT_MAX_SIZE_BUFFERS   1000  /* 1000 buffers */
-#define DEFAULT_MAX_SIZE_BYTES     (4 * 1024 * 1024)    /* 4 MB */
+#define DEFAULT_MAX_SIZE_BUFFERS   100  /* 100 buffers */
+#define DEFAULT_MAX_SIZE_BYTES     (2 * 1024 * 1024)    /* 2 MB */
 #define DEFAULT_MAX_SIZE_TIME      0 * GST_SECOND       /* 0 seconds */
 #define DEFAULT_USE_BUFFERING      FALSE
-#define DEFAULT_USE_TAGS_BITRATE   TRUE
+#define DEFAULT_USE_TAGS_BITRATE   FALSE
 #define DEFAULT_USE_RATE_ESTIMATE  TRUE
-#define DEFAULT_LOW_PERCENT        7 
+#define DEFAULT_LOW_PERCENT        10 
 #define DEFAULT_HIGH_PERCENT       99
 #define DEFAULT_LOW_WATERMARK      0.01
 #define DEFAULT_HIGH_WATERMARK     0.99
